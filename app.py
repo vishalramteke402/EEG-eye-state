@@ -1,19 +1,21 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import bz2
 import pickle
 
 # ---------------------------------
-# App Configuration
+# Page config
 # ---------------------------------
-st.set_page_config(page_title="EEG Eye State Detection", layout="centered")
+st.set_page_config(
+    page_title="EEG Eye State Detection",
+    layout="centered"
+)
 
 st.title("🧠 EEG Eye State Detection")
-st.write("Random Forest Model (Loaded from Pickle File)")
+st.write("Prediction using a **pre-trained Random Forest model**")
 
 # ---------------------------------
-# Load Pickle Model
+# Load trained RF model (.pbz2)
 # ---------------------------------
 @st.cache_resource
 def load_model():
@@ -24,7 +26,8 @@ def load_model():
 model = load_model()
 
 # ---------------------------------
-# EEG Feature Names (MUST MATCH TRAINING DATA)
+# EEG Feature Names
+# MUST MATCH training order
 # ---------------------------------
 feature_names = [
     'AF3','F7','F3','FC5','T7','P7','O1',
@@ -32,7 +35,7 @@ feature_names = [
 ]
 
 # ---------------------------------
-# Sidebar Inputs
+# Sidebar inputs
 # ---------------------------------
 st.sidebar.header("🔧 EEG Channel Inputs")
 
@@ -41,7 +44,8 @@ user_input = {}
 for feature in feature_names:
     user_input[feature] = st.sidebar.number_input(
         label=feature,
-        value=0.0
+        value=0.0,
+        format="%.4f"
     )
 
 input_df = pd.DataFrame([user_input])
@@ -58,6 +62,6 @@ if st.button("🔍 Predict Eye State"):
     else:
         st.success("👁️ Eye State: **OPEN**")
 
-    st.subheader("Prediction Probabilities")
-    st.write(f"👁️ Open: **{probability[0]*100:.2f}%**")
-    st.write(f"🙈 Closed: **{probability[1]*100:.2f}%**")
+    st.subheader("📊 Prediction Probability")
+    st.write(f"Open: **{probability[0]*100:.2f}%**")
+    st.write(f"Closed: **{probability[1]*100:.2f}%**")
